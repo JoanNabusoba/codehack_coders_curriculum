@@ -36,7 +36,7 @@ dependencies:
   cupertino_icons: ^1.0.2
   get: ^4.6.1
   google_fonts: ^2.2.0
-  parse_server_sdk_flutter: ^3.1.0
+  parse_server_sdk_flutter: ^3.1.2
   flutter_smart_dialog: ^3.4.0+1
   flutter_spinkit: ^5.1.0
 

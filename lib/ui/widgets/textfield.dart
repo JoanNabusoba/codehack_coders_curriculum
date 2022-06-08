@@ -18,6 +18,7 @@ class TxtField extends StatelessWidget {
     return Theme(
       data: Theme.of(context).copyWith(splashColor: Colors.transparent),
       child: TextField(
+        obscureText: obscureText,
         controller: textEditingController,
         autofocus: false,
         style: TextStyle(fontSize: 16, color: Color(0xFFbdc6cf)),

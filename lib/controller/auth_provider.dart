@@ -5,7 +5,6 @@ import 'package:get/get.dart';
 import 'package:parse_server_sdk_flutter/parse_server_sdk.dart';
 
 class AuthProvider extends GetxController {
-
   //create a map that will hold the user
   var userDets = {}.obs;
   //parse user
@@ -20,10 +19,9 @@ class AuthProvider extends GetxController {
 
   //When this controller is init, always check when the user has changed
   @override
-  onReady(){
+  onReady() {
     ever(parseUser, userHandler);
   }
-
 
   //---method to sign up user
   signUpUser({username, password, emailAddress, usertype}) async {
@@ -43,7 +41,7 @@ class AuthProvider extends GetxController {
     //create a user using ParseUser, add ..set to add extra fields
     var user = ParseUser(emailAddress, password, emailAddress)
       ..set('usertype', usertype)
-    ..set("fullnames", username);
+      ..set("fullnames", username);
 
     var response = await user.signUp();
     //successful signup
@@ -60,75 +58,87 @@ class AuthProvider extends GetxController {
     } catch (e) {
       AppUtils.showError("An error occurred, please try again later");
       print(e.toString());
+      //dismissing the loader
+      SmartDialog.dismiss();
     }
     return false;
   }
-    //---end of method to sign up user
+  //---end of method to sign up user
 
-    //---method to login user
-    loginUser({email, password}) async {
-      //show loader
-      AppUtils.showLoading();
-      // use validate if empty method created to validate user inputs
-      if (validateIfEmpty("email", email) ||
-          validateIfEmpty("password", password)) {
-        //dismiss dialog
-        SmartDialog.dismiss();
-        // the function stops here, won't go down to create the user
-        return false;
-      }
-
+  //---method to login user
+  loginUser({email, password}) async {
+    //show loader
+    AppUtils.showLoading();
+    // use validate if empty method created to validate user inputs
+    if (validateIfEmpty("email", email) ||
+        validateIfEmpty("password", password)) {
+      //dismiss dialog
+      SmartDialog.dismiss();
+      // the function stops here, won't go down to create the user
+      return false;
+    }
+    //print("email:$email & password:$password");
+    try {
       var user = ParseUser(email, password, email);
       var response = await user.login();
 
       //success login
-      try {
-        if (response.success) {
-          //get current logged in user
-          await getParseUser();
-          //stop loader
-          AppUtils.showSuccess("Login successful!");
-          //dismissing the loader
-          SmartDialog.dismiss();
-          return true;
-        }
-      } catch (e) {
-        AppUtils.showError("An error occurred, please try again later");
-        print(e.toString());
-      }
-      return false;
-    }
-    //---end of method to login user
 
-    //---forgot password
-    forgotPass({email}) async {
-      //show loader
-      AppUtils.showLoading();
-      // use validate if empty method created to validate user inputs
-      if (validateIfEmpty("email", email)) {
-        //dismiss dialog
+      if (response.success) {
+        //get current logged in user
+        await getParseUser();
+        //stop loader
+        AppUtils.showSuccess("Login successful!");
+        //dismissing the loader
         SmartDialog.dismiss();
-        // the function stops here, won't go down to create the user
+        return true;
+      }
+      //Check whether the response is an error
+      else {
+        //print(response.error);
+        AppUtils.showError(response.error?.message);
+        SmartDialog.dismiss();
         return false;
       }
+    } catch (e) {
+      SmartDialog.dismiss();
+      AppUtils.showError("An error occurred, please try again later");
+      print(e.toString());
+    }
 
-      //creating user object
-      try {
-        var user = ParseUser(email, "", email);
-        var response = await user.requestPasswordReset();
-        if(response.success){
-          AppUtils.showSuccess("Password reset! Check your email");
-          SmartDialog.dismiss();
-          return true;
-        }
-      } catch (e) {
-        AppUtils.showError("An error occurred, please try again later");
-        SmartDialog.dismiss();
-        print(e.toString());
-      }
+    return false;
+  }
+  //---end of method to login user
+
+  //---forgot password
+  forgotPass({email}) async {
+    //show loader
+    AppUtils.showLoading();
+    // use validate if empty method created to validate user inputs
+    if (validateIfEmpty("email", email)) {
+      //dismiss dialog
+      SmartDialog.dismiss();
+      // the function stops here, won't go down to create the user
       return false;
     }
-    //---end of forgot password
+
+    //creating user object
+    try {
+      var user = ParseUser(email, "", email);
+      var response = await user.requestPasswordReset();
+      if (response.success) {
+        AppUtils.showSuccess("Password reset! Check your email");
+        SmartDialog.dismiss();
+        return true;
+      }
+    } catch (e) {
+      AppUtils.showError("An error occurred, please try again later");
+      SmartDialog.dismiss();
+      print(e.toString());
+    }
+    return false;
+  }
+  //---end of forgot password
 
   ////function to get parse user
   getParseUser() async {
@@ -141,7 +151,7 @@ class AuthProvider extends GetxController {
     //get the user from parse user from parseUser
     await getParseUser();
     //logout if user in empty
-    if(parseUser.isNotEmpty) {
+    if (parseUser.isNotEmpty) {
       var user = await ParseUser.currentUser();
       await (user as ParseUser).logout();
       parseUser.value.clear();
@@ -150,10 +160,10 @@ class AuthProvider extends GetxController {
   }
 
   ////Whenever the user is empty, go to login screen
-  userHandler(user){
-    if(user.isEmpty){
+  userHandler(user) {
+    if (user.isEmpty) {
       //removes all screen
-      Get.offAll(()=>Login());
+      Get.offAll(() => Login());
     }
   }
 
