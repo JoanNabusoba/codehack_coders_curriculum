@@ -11,18 +11,21 @@ class MainProvider extends GetxController {
   //as maps
   var selectedCourse = {}.obs;
 
-  //---method to fetch parse lists
+  //---method to fetch courses list from parse server
   fetchCourseLists() async {
     //show loader
     AppUtils.showLoading();
-    //fetch al course lists
+    //fetch all course lists
     var apiResponse = await ParseObject('Courses').getAll();
+
     if (apiResponse.success) {
       //clear courses list
       coursesLists.clear();
       update();
+
+      var results = apiResponse.results ?? [];
       //after fetching
-      for (var obj in apiResponse.result) {
+      for (var obj in results) {
         //cast parse object
         //toJSon brings data as Map
         coursesLists.add((obj as ParseObject).toJson());
@@ -57,7 +60,7 @@ class MainProvider extends GetxController {
   addOrEditCourse({title, subtitle, content, enrolled}) async {
     AppUtils.showLoading();
     try {
-      if(selectedCourse.isEmpty){
+      if (selectedCourse.isEmpty) {
         //it means you are creating. Refer to the flag we made in selected course method
         var course = ParseObject('Courses')
           ..set('title', title)
@@ -66,7 +69,7 @@ class MainProvider extends GetxController {
           ..set('enrolled', enrolled);
         await course.save();
         AppUtils.showSuccess("Course created successfully");
-      } else{
+      } else {
         //means we are updating existing data
         var course = ParseObject('Courses')
           ..objectId = selectedCourse.value["objectId"]
@@ -77,7 +80,7 @@ class MainProvider extends GetxController {
         await course.save();
         AppUtils.showSuccess("Course updated successfully");
       }
-    } catch(e){
+    } catch (e) {
       AppUtils.showError("An error occurred, please try again later");
       print(e.toString());
     }
